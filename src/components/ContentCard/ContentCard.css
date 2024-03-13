@@ -1,0 +1,15 @@
+.content-card-div{
+    position: relative;
+    max-width: 250px;
+}
+.card-img{
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+}
+.card-title{
+    position: absolute;
+    bottom: 40px;
+    left: 20px;
+    
+}
