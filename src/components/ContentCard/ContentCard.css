@@ -1,15 +1,32 @@
 .content-card-div{
     position: relative;
-    max-width: 250px;
+    height: fit-content;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .card-img{
-    width: 100%;
-    height: 100%;
+    width: calc(100%);
     border-radius: 10px;
+    min-width: 290px;
+    max-width: 390px;
+ 
 }
 .card-title{
-    position: absolute;
-    bottom: 40px;
-    left: 20px;
-    
+    bottom: 30px;
+    left: 10px;
+   
 }
+.card-bottom{
+    position: absolute;
+    bottom: 15px;
+    width: 100%;
+    font-size: clamp(12px, 2.5vw, 16px); 
+}
+
+@media (min-width:770px) {
+    .content-card-div{
+       max-width: 290px;
+    }
+  }

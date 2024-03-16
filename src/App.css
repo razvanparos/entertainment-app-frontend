@@ -16,3 +16,15 @@
 body{
     background-color: #10141e;
 }
+
+body::-webkit-scrollbar {
+    width: 10px;
+}
+body::-webkit-scrollbar-track {
+    background: var(--blue-dark);
+    border-radius: 5px;
+}
+body::-webkit-scrollbar-thumb {
+    background: var(--red);
+    border-radius: 5px;
+  }
