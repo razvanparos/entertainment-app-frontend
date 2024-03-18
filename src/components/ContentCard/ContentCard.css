@@ -5,28 +5,97 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
 }
 .card-img{
     width: calc(100%);
     border-radius: 10px;
+}
+.trending-img{
     min-width: 290px;
-    max-width: 390px;
- 
 }
 .card-title{
     bottom: 30px;
     left: 10px;
-   
 }
-.card-bottom{
+.card-details{
     position: absolute;
     bottom: 15px;
+    left: 12px;
     width: 100%;
-    font-size: clamp(12px, 2.5vw, 16px); 
+    font-size: clamp(12px, 2.5vw, 18px); 
+}
+.card-bottom{
+    margin-top: 12px;
+    width: calc(100%);
+    font-size: clamp(12px, 2.5vw, 14px); 
+}
+.content-top{
+    opacity: 0.75;
+    display: flex;
+    align-items: center;
+    column-gap: 8px;
+}
+.card-title{
+    font-size: clamp(12px, 2.5vw, 18px); 
+}
+.restriction{
+    text-transform: uppercase;
+}
+.dot{
+    background-color: var(--white);
+    border-radius: 50%;
+    opacity: .5;
+    height: 3px;
+    width: 3px;
+}
+.content-type{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    column-gap: 4px;
+}
+.card-title-trending{
+    font-size: clamp(12px, 2.5vw, 22px); 
+    font-weight: 500;
+}
+.content-type svg{
+    max-width: 12px;
+}
+.trending svg{
+    max-width: 16px;
+}
+.bookmark-div{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    background-color: rgba(16, 20, 30, .5);
+    border-radius: 50%;
+    cursor: pointer;
+}
+.bookmark-icon{
+    max-width: 12px;
+}
+.trending-bookmark{
+    right: 12px;
 }
 
 @media (min-width:770px) {
     .content-card-div{
        max-width: 290px;
+    }
+    .trending-img{
+        min-width: 390px;
+    }
+    .card-details{
+        left: -32px;
+    }
+    .trending-bookmark{
+        right: -28px;
     }
   }

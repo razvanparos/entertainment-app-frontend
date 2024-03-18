@@ -11,6 +11,7 @@
     padding: 0px;
     box-sizing: border-box;
     font-family: "Outfit", sans-serif;
+    transition: 0.2s;
 }
 
 body{
