@@ -48,13 +48,15 @@ function Dashboard(){
             .catch(error => {
                 console.error('Error fetching user data:', error);
             });
-          }, "50");
+          }, "500");
        
     }, []);
     useEffect(() => {
-       console.log(contentData)
     }, [contentData]);
     useEffect(() => {
+        if(!bookmarked){
+            setBookmarked([]);
+        }
        axios.put(`http://localhost:1337/api/users/${currentUserId}`, {
         bookmarkedContent: bookmarked
     })
@@ -118,7 +120,6 @@ function Dashboard(){
             axios.get(`http://localhost:1337/api/contents?populate=*&pagination[pageSize]=30`)
             .then(response=>{
                 let filterBookmarked = response.data.data.filter(f=>bookmarked.includes(f.id));
-                console.log(filterBookmarked)
                 setOriginalContentData(filterBookmarked)
                 setContentData(filterBookmarked)  
                 setLoadingContentData(false);    
@@ -141,9 +142,9 @@ function Dashboard(){
                 <img className='search-icon' src={`https://lm-entertainment-app.netlify.app/static/media/icon-search.b3ef91bd.svg`} alt="" />
                 <input value={searchInput} onChange={(e)=>{setSearchInput(e.target.value)}} className='search-bar' type="text" placeholder={`Search for ${searchFor}`}/>
             </div>
-            <p className='content-div-top'>Trending</p>
+            <p className={`content-div-top ${loadingContentData?'hidden':''}`}>Trending</p>
             <div className='trending-div'>
-                {loadingContentData ? <Loader/> : contentData.map((c) => (
+                {loadingContentData ? '' : contentData.map((c) => (
                     c.attributes.trending ? (
                         <ContentCard
                             key={c.id}
@@ -159,7 +160,7 @@ function Dashboard(){
                         /> ) : null
                 ))}
             </div>
-            <p className='content-div-top'>Recommended for you</p>
+           <p className={`content-div-top ${loadingContentData?'hidden':''}`}>Recommended for you</p>
            <div className='contents-div'>
                 {loadingContentData ? <Loader/> : contentData.map((c) => (
                  !c.attributes.trending ? (

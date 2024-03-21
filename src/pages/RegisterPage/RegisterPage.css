@@ -4,3 +4,14 @@
     justify-content: center;
     height: 100vh;
 }
+.error{
+    color: var(--red);
+    text-align: center;
+    transition: 0.3s;
+}
+.off{
+    opacity: 0;
+}
+.on{
+    opacity: 1;
+}

@@ -7,12 +7,32 @@
     justify-content: center;
     flex-direction: column;
 }
+.content-card-div:hover .card-img{ 
+    opacity: 0.4;
+}
+.content-card-div:hover .play-button-div{ 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 24px 9px 9px;
+    cursor: pointer;
+}
+.content-card-div:hover .play-button-div-trending{ 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 24px 9px 9px;
+    cursor: pointer;
+}
 .card-img{
+    min-width: 270px;
+    min-height: 170px;
     width: calc(100%);
     border-radius: 10px;
 }
 .trending-img{
     min-width: 290px;
+  
 }
 .card-title{
     bottom: 30px;
@@ -81,16 +101,42 @@
 .bookmark-icon{
     max-width: 12px;
 }
+.bookmark-div:hover{
+    background-color: white;
+}
+.bookmark-div:hover svg{
+    filter: invert(1);
+}
 .trending-bookmark{
     right: 12px;
 }
-
+.play-button-div{
+    transform: translate(0%, -50%);
+    width: 120px;
+    height: 50px;
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.158);
+    border-radius: 50px;
+    display: none;
+    font-size: clamp(12px, 2.5vw, 20px); 
+}
+.play-button-div-trending{
+    transform: translate(0%, 0%);
+    width: 120px;
+    height: 50px;
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.158);
+    border-radius: 50px;
+    display: none;
+    font-size: clamp(12px, 2.5vw, 20px); 
+}
 @media (min-width:770px) {
     .content-card-div{
        max-width: 290px;
     }
     .trending-img{
         min-width: 390px;
+        min-height: 242px;
     }
     .card-details{
         left: -32px;
@@ -98,4 +144,5 @@
     .trending-bookmark{
         right: -28px;
     }
+
   }

@@ -1,3 +1,9 @@
+.loader-div{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .loader {
     --dim: 5rem;
     width: var(--dim);

@@ -1,27 +1,31 @@
 import { useState } from 'react'
 import './RegisterPage.css'
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function RegisterPage(){
     const [inputUsername, setInputUsername] = useState('')
     const [inputEmail, setInputEmail] = useState('')
     const [inputPassword, setInputPassword] = useState('')
+    const [errorMsg, setErrorMsg] = useState('')
+    const navigate = useNavigate();
+
     
     const handleRegister=(e)=>{
         e.preventDefault();
         if(inputUsername && inputEmail && inputPassword){
-            axios
-            .post('http://localhost:1337/api/auth/local/register', {
+            axios.post('http://localhost:1337/api/auth/local/register', {
                 username: inputUsername,
                 email: inputEmail,
                 password: inputPassword,
             })
             .then(response => {
-              console.log('User profile', response.data.user);
-              console.log('User token', response.data.jwt);
+              if(response.status===200){
+                navigate('/')
+              } 
             })
             .catch(error => {
-              console.log('An error occurred:', error.response);
+              setErrorMsg(error.response.data.error.message)
             });
       
     }
@@ -34,6 +38,7 @@ function RegisterPage(){
                 <input className='input' type="text" placeholder='Username' value={inputUsername} onChange={(e)=>{setInputUsername(e.target.value)}}/>
                 <input className='input' type="email" placeholder='Email' value={inputEmail} onChange={(e)=>{setInputEmail(e.target.value)}}/>
                 <input className='input' type="password" placeholder='Password' value={inputPassword} onChange={(e)=>{setInputPassword(e.target.value)}}/>
+                <p className={`error ${errorMsg===''?'off':'on'}`}>{errorMsg}</p>
                 <button className="login-button" onClick={handleRegister}>Register</button>
             </form>
         </div>
