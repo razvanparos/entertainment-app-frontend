@@ -1,5 +1,5 @@
 import './LoginPage.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaCheck } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
@@ -8,8 +8,21 @@ function LoginPage() {
   const [inputUsername, setInputUsername] = useState('')
   const [inputPassword, setInputPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
+  const [showError, setShowError] = useState(false)
   const [result, setResult] = useState()
   const navigate = useNavigate();
+
+  useEffect(()=>{
+    axios.get(`http://localhost:1337/api/users`)
+      .then(response=>{
+        console.log(response.data)
+        setShowError(false)
+    })
+    .catch(error => {
+        console.error('Error fetching user data:', error);
+        setShowError(true)
+    });
+  },[])
 
   const handleSubmit=(e)=>{
     e.preventDefault();
@@ -37,6 +50,9 @@ function LoginPage() {
 
   return (
     <div className="login-page-div">
+    <div className={`not-connected ${showError?'':'hideError'}`}>
+        Network error: Backend not connected
+    </div>
         <form className='login-form'>
             <h2>LOGIN</h2>
             <input className='input' type="text" placeholder='Username' value={inputUsername} onChange={(e)=>{setInputUsername(e.target.value)}}/>
