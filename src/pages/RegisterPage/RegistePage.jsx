@@ -2,6 +2,8 @@ import { useState } from 'react'
 import './RegisterPage.css'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {auth} from '../../config/firebase';
+import {createUserWithEmailAndPassword} from 'firebase/auth';
 
 function RegisterPage(){
     const [inputUsername, setInputUsername] = useState('')
@@ -11,23 +13,29 @@ function RegisterPage(){
     const navigate = useNavigate();
 
     
-    const handleRegister=(e)=>{
+    const handleRegister=async(e)=>{
         e.preventDefault();
         if(inputUsername && inputEmail && inputPassword){
-            axios.post('http://localhost:1337/api/auth/local/register', {
-                username: inputUsername,
-                email: inputEmail,
-                password: inputPassword,
-            })
-            .then(response => {
-              if(response.status===200){
-                navigate('/')
-              } 
-            })
-            .catch(error => {
-              setErrorMsg(error.response.data.error.message)
-            });
-      
+          try{
+            await createUserWithEmailAndPassword(auth, inputEmail, inputPassword);
+            navigate('/')
+          } catch(err){
+            console.log(err)
+            setErrorMsg(err.message)
+          }
+            // axios.post('http://localhost:1337/api/auth/local/register', {
+            //     username: inputUsername,
+            //     email: inputEmail,
+            //     password: inputPassword,
+            // })
+            // .then(response => {
+            //   if(response.status===200){
+            //     navigate('/')
+            //   } 
+            // })
+            // .catch(error => {
+            //   setErrorMsg(error.response.data.error.message)
+            // }); 
     }
         
     }

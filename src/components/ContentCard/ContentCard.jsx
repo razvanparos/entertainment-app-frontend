@@ -4,7 +4,7 @@ import './ContentCard.css'
 function ContentCard(props){
     return(
         <div className='content-card-div'>
-            <img className={`card-img ${props.trending ?'trending-img':''}`} src={`http://localhost:1337${props.image}`} alt="image" />
+            <img className={`card-img ${props.trending ?'trending-img':''}`} src={`${props.image}`} alt="image" />
             <div onClick={()=>{props.addToBookmarked(props.id)}} className={`bookmark-div ${props.trending ?'trending-bookmark':''}`}>
                 <svg className={`bookmark-icon ${props.bookmarked.includes(props.id)?'hidden':''}`} width="12" height="14" viewBox="0 0 12 14" xmlns="http://www.w3.org/2000/svg"><path d="m10.518.75.399 12.214-5.084-4.24-4.535 4.426L.75 1.036l9.768-.285Z" stroke="#FFF" strokeWidth="1.5" fill="none"></path></svg>
                 <svg className={`bookmark-icon ${props.bookmarked.includes(props.id)?'':'hidden'}`} width="17" height="20" viewBox="0 0 17 20" xmlns="http://www.w3.org/2000/svg" id="bookmarked"><path d="M15.387 0c.202 0 .396.04.581.119.291.115.522.295.694.542.172.247.258.52.258.82v17.038c0 .3-.086.573-.258.82a1.49 1.49 0 0 1-.694.542 1.49 1.49 0 0 1-.581.106c-.423 0-.79-.141-1.098-.423L8.46 13.959l-5.83 5.605c-.317.29-.682.436-1.097.436-.202 0-.396-.04-.581-.119a1.49 1.49 0 0 1-.694-.542A1.402 1.402 0 0 1 0 18.52V1.481c0-.3.086-.573.258-.82A1.49 1.49 0 0 1 .952.119C1.137.039 1.33 0 1.533 0h13.854Z" fill="#fff"></path></svg>

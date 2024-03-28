@@ -5,6 +5,10 @@ import axios, { all } from 'axios';
 import ContentCard from '../../components/ContentCard/ContentCard';
 import Navbar from '../../components/Navbar/Navbar';
 import Loader from '../../components/Loader/Loader';
+import {auth} from '../../config/firebase';
+import {signOut} from 'firebase/auth';
+import {db} from '../../config/firebase';
+import {getDocs, collection, query, where} from 'firebase/firestore';
 
 function Dashboard(){
     const navigate = useNavigate();
@@ -16,8 +20,10 @@ function Dashboard(){
     const [contentData, setContentData]=useState([]);
     const [bookmarked, setBookmarked]=useState([]);
     const [originalContentData, setOriginalContentData]=useState([]);
-    const [loadingUserData, setLoadingUserData] = useState(false);
     const [loadingContentData, setLoadingContentData] = useState(false);
+
+    const contentsCollectionRef = collection(db,'contents')
+    
     
     useEffect(() => {
         if (isLoggedIn === "false" || !isLoggedIn) {
@@ -26,86 +32,118 @@ function Dashboard(){
     }, [isLoggedIn]);
     
     useEffect(() => {
-        setLoadingUserData(true);
-        axios.get(`http://localhost:1337/api/users/${currentUserId}`)
-            .then(response=>{
-                setUserData(response.data)
-                setBookmarked(response.data.bookmarkedContent)
-                setLoadingUserData(false);
-            })
-            .catch(error => {
-                console.error('Error fetching user data:', error);
-            });
+        // axios.get(`http://localhost:1337/api/users/${currentUserId}`)
+        //     .then(response=>{
+        //         setUserData(response.data)
+        //         setBookmarked(response.data.bookmarkedContent)
+        //     })
+        //     .catch(error => {
+        //         console.error('Error fetching user data:', error);
+        //     });
     }, []);
     useEffect(() => {
-        setLoadingContentData(true);
-        setTimeout(() => {
-             axios.get(`http://localhost:1337/api/contents?populate=*&pagination[pageSize]=30`)
-            .then(response=>{
-                setContentData(response.data.data)
-                setLoadingContentData(false);      
-            })
-            .catch(error => {
-                console.error('Error fetching user data:', error);
-            });
-          }, "500");
+        const getContentData = async () =>{
+            setLoadingContentData(true);
+            try{
+             const data = await getDocs(contentsCollectionRef)   
+             setLoadingContentData(false);
+             const filteredData = data.docs.map((doc)=>({
+                ...doc.data(),
+                id: doc.id,
+            }))
+             console.log(filteredData);
+             setContentData(filteredData)
+            } catch(err){
+                console.log(err)
+            }
+            
+        }
+        getContentData();
+        // setLoadingContentData(true);
+        // setTimeout(() => {
+        //      axios.get(`http://localhost:1337/api/contents?populate=*&pagination[pageSize]=30`)
+        //     .then(response=>{
+        //         setContentData(response.data.data)
+        //         setLoadingContentData(false);      
+        //     })
+        //     .catch(error => {
+        //         console.error('Error fetching user data:', error);
+        //     });
+        //   }, "500");
        
     }, []);
     useEffect(() => {
     }, [contentData]);
     useEffect(() => {
-        if(!bookmarked){
-            setBookmarked([]);
-        }
-       axios.put(`http://localhost:1337/api/users/${currentUserId}`, {
-        bookmarkedContent: bookmarked
-    })
+    //     if(!bookmarked){
+    //         setBookmarked([]);
+    //     }
+    //    axios.put(`http://localhost:1337/api/users/${currentUserId}`, {
+    //     bookmarkedContent: bookmarked
+    // })
     }, [bookmarked]);
   
     
     useEffect(() => {
         let originalData=originalContentData;
-        const filteredData = originalData.filter(item => item.attributes.title.toLowerCase().includes(searchInput.toLowerCase()));
+        const filteredData = originalData.filter(item => item.title.toLowerCase().includes(searchInput.toLowerCase()));
         setContentData(filteredData);       
     }, [searchInput]);
 
     const handleChangeFilter=(filter)=>{
+        const getFilteredContentData = async (filterQuery)=>{
+            const q = query(contentsCollectionRef, where("type", "in", filterQuery));
+            const querySnapshot = await getDocs(q);
+            const filteredData = querySnapshot.docs.map((doc)=>({
+                ...doc.data(),
+                id: doc.id,
+            }))
+            console.log(filteredData)
+            setContentData(filteredData)
+            setOriginalContentData(filteredData)
+        }
         setSearchInput('')
-        let filterQuery='';
+        let filterQuery=['movie','series'];
         switch(filter){
             case 'movie':
                 setSearchFor('movies')
-                filterQuery=`filters[type][$eq]=${filter}&`;
+                filterQuery=['movie']
                 break;
+
             case 'series':
                 setSearchFor('TV series')
-                filterQuery=`filters[type][$eq]=${filter}&`;
+                filterQuery=['series']
                 break;
+            
             case 'all':
                 setSearchFor('movies or TV series')
-                filterQuery=``;
+                filterQuery=['movie','series']
                 break;
         }
-        setLoadingContentData(true);
-        setTimeout(() => {
-            axios.get(`http://localhost:1337/api/contents?${filterQuery}populate=*&pagination[pageSize]=30`)
-            .then(response=>{
-                setContentData(response.data.data)  
-                setOriginalContentData(response.data.data)
-                setLoadingContentData(false);    
-            })
-            .catch(error => {
-                console.error('Error fetching user data:', error);
-            });
-          }, "50");
+        getFilteredContentData(filterQuery);
+        // setLoadingContentData(true);
+        // setTimeout(() => {
+        //     axios.get(`http://localhost:1337/api/contents?${filterQuery}populate=*&pagination[pageSize]=30`)
+        //     .then(response=>{
+        //         setContentData(response.data.data)  
+        //         setOriginalContentData(response.data.data)
+        //         setLoadingContentData(false);    
+        //     })
+        //     .catch(error => {
+        //         console.error('Error fetching user data:', error);
+        //     });
+        //   }, "50");
+        
     }
 
-    const signOut = () =>{
+    const signOut = async () =>{
         localStorage.setItem('LoggedIn',false)
         localStorage.setItem('RememberMe',false)
         localStorage.setItem('currentUserId',0)
         navigate('/');
     }
+        
+        
     const addToBookmarked  = (id) => {
         if (bookmarked.includes(id)) {
             setBookmarked(prevBookmarked => prevBookmarked.filter(itemId => itemId !== id));
@@ -115,19 +153,19 @@ function Dashboard(){
     }
     const showBookmarked = () => {
         setSearchFor('bookmarked shows')
-        setLoadingContentData(true);
-        setTimeout(() => {
-            axios.get(`http://localhost:1337/api/contents?populate=*&pagination[pageSize]=30`)
-            .then(response=>{
-                let filterBookmarked = response.data.data.filter(f=>bookmarked.includes(f.id));
-                setOriginalContentData(filterBookmarked)
-                setContentData(filterBookmarked)  
-                setLoadingContentData(false);    
-            })
-            .catch(error => {
-                console.error('Error fetching user data:', error);
-            });
-          }, "50");
+        // setLoadingContentData(true);
+        // setTimeout(() => {
+        //     axios.get(`http://localhost:1337/api/contents?populate=*&pagination[pageSize]=30`)
+        //     .then(response=>{
+        //         let filterBookmarked = response.data.data.filter(f=>bookmarked.includes(f.id));
+        //         setOriginalContentData(filterBookmarked)
+        //         setContentData(filterBookmarked)  
+        //         setLoadingContentData(false);    
+        //     })
+        //     .catch(error => {
+        //         console.error('Error fetching user data:', error);
+        //     });
+        //   }, "50");
     }
 
     return(
@@ -145,16 +183,16 @@ function Dashboard(){
             <p className={`content-div-top ${loadingContentData?'hidden':''}`}>Trending</p>
             <div className='trending-div'>
                 {loadingContentData ? '' : contentData.map((c) => (
-                    c.attributes.trending ? (
+                    c.trending ? (
                         <ContentCard
                             key={c.id}
                             id={c.id}
-                            title={c.attributes.title}
-                            image={c.attributes.image.data.attributes.url}
-                            year={c.attributes.year}
-                            type={c.attributes.type}
-                            trending={c.attributes.trending}
-                            restriction={c.attributes.restriction}
+                            title={c.title}
+                            image={c.image}
+                            year={c.year}
+                            type={c.type}
+                            trending={c.trending}
+                            restriction={c.restriction}
                             addToBookmarked={addToBookmarked}
                             bookmarked={bookmarked}
                         /> ) : null
@@ -163,16 +201,16 @@ function Dashboard(){
            <p className={`content-div-top ${loadingContentData?'hidden':''}`}>Recommended for you</p>
            <div className='contents-div'>
                 {loadingContentData ? <Loader/> : contentData.map((c) => (
-                 !c.attributes.trending ? (
+                 !c.trending ? (
                  <ContentCard
                     key={c.id}
                     id={c.id}
-                    title={c.attributes.title}
-                    image={c.attributes.image.data.attributes.url}
-                    year={c.attributes.year}
-                    type={c.attributes.type}
-                    trending={c.attributes.trending}
-                    restriction={c.attributes.restriction}
+                    title={c.title}
+                    image={c.image}
+                    year={c.year}
+                    type={c.type}
+                    trending={c.trending}
+                    restriction={c.restriction}
                     addToBookmarked={addToBookmarked}
                     bookmarked={bookmarked}
                  /> ) : null
