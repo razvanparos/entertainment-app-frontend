@@ -1,47 +1,48 @@
 import { useEffect, useState } from 'react';
 import './Dashboard.css'
 import { useNavigate } from 'react-router-dom';
-import axios, { all } from 'axios';
 import ContentCard from '../../components/ContentCard/ContentCard';
 import Navbar from '../../components/Navbar/Navbar';
 import Loader from '../../components/Loader/Loader';
-import {auth} from '../../config/firebase';
-import {signOut} from 'firebase/auth';
 import {db} from '../../config/firebase';
-import {getDocs, collection, query, where} from 'firebase/firestore';
+import {getDocs, collection, query, where, doc, setDoc} from 'firebase/firestore';
 
 function Dashboard(){
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn]=useState(localStorage.getItem('LoggedIn'));
-    const [currentUserId, setCurrentUserId]=useState(localStorage.getItem('currentUserId'));
-    const [userData, setUserData]=useState('');
     const [searchInput, setSearchInput]=useState('');
     const [searchFor, setSearchFor]=useState('movies or TV series');
     const [contentData, setContentData]=useState([]);
-    const [bookmarked, setBookmarked]=useState([]);
     const [originalContentData, setOriginalContentData]=useState([]);
     const [loadingContentData, setLoadingContentData] = useState(false);
+    const [bookmarked, setBookmarked]=useState();
 
     const contentsCollectionRef = collection(db,'contents')
-    
-    
+    const bookmarkedList = collection(db,'UsersBookmarkedList')
+
     useEffect(() => {
-        if (isLoggedIn === "false" || !isLoggedIn) {
+      if (isLoggedIn === "false" || !isLoggedIn) {
             navigate('/login');
-        }
+        }  
     }, [isLoggedIn]);
     
     useEffect(() => {
-        // axios.get(`http://localhost:1337/api/users/${currentUserId}`)
-        //     .then(response=>{
-        //         setUserData(response.data)
-        //         setBookmarked(response.data.bookmarkedContent)
-        //     })
-        //     .catch(error => {
-        //         console.error('Error fetching user data:', error);
-        //     });
-    }, []);
-    useEffect(() => {
+        let currentUID = localStorage.getItem('currentUserId')
+        const getUserData = async () =>{
+            try{
+                const q = query(bookmarkedList, where("id", "==", currentUID));
+                const querySnapshot = await getDocs(q);
+                const filteredData = querySnapshot.docs.map((doc)=>({
+                   ...doc.data(),
+                   id: doc.id,
+               }))
+                console.log(filteredData[0].bookmarked);
+                setBookmarked(filteredData[0].bookmarked)
+               } catch(err){
+                   console.log(err)
+               }
+            
+        }
         const getContentData = async () =>{
             setLoadingContentData(true);
             try{
@@ -58,29 +59,31 @@ function Dashboard(){
             }
             
         }
+        getUserData();
         getContentData();
-        // setLoadingContentData(true);
-        // setTimeout(() => {
-        //      axios.get(`http://localhost:1337/api/contents?populate=*&pagination[pageSize]=30`)
-        //     .then(response=>{
-        //         setContentData(response.data.data)
-        //         setLoadingContentData(false);      
-        //     })
-        //     .catch(error => {
-        //         console.error('Error fetching user data:', error);
-        //     });
-        //   }, "500");
-       
     }, []);
+    
     useEffect(() => {
     }, [contentData]);
+
     useEffect(() => {
-    //     if(!bookmarked){
-    //         setBookmarked([]);
-    //     }
-    //    axios.put(`http://localhost:1337/api/users/${currentUserId}`, {
-    //     bookmarkedContent: bookmarked
-    // })
+        if(bookmarked){
+            let currentUID = localStorage.getItem('currentUserId')
+        const updateBookmarked = async () =>{
+            try{
+                console.log(bookmarked)
+                await setDoc(doc(db, "UsersBookmarkedList", currentUID ), {
+                    bookmarked: bookmarked,
+                    id: currentUID
+                });
+            }catch(err){
+                console.log(err)
+            }
+        }
+        updateBookmarked();
+        }
+        
+        
     }, [bookmarked]);
   
     
@@ -91,19 +94,26 @@ function Dashboard(){
     }, [searchInput]);
 
     const handleChangeFilter=(filter)=>{
-        const getFilteredContentData = async (filterQuery)=>{
+        setSearchInput('')
+        let filterQuery=['movie','series'];
+        let showBookmarked=false;
+        const getFilteredContentData = async (filterQuery,showBookmarked)=>{
             const q = query(contentsCollectionRef, where("type", "in", filterQuery));
             const querySnapshot = await getDocs(q);
             const filteredData = querySnapshot.docs.map((doc)=>({
                 ...doc.data(),
                 id: doc.id,
             }))
-            console.log(filteredData)
-            setContentData(filteredData)
-            setOriginalContentData(filteredData)
+            if(showBookmarked===true){
+                let filteredBookmarked = filteredData.filter(f=>bookmarked.includes(f.id))
+                setOriginalContentData(filteredBookmarked)
+                setContentData(filteredBookmarked)  
+            }else{
+                setContentData(filteredData)
+                setOriginalContentData(filteredData)
+            }
+            
         }
-        setSearchInput('')
-        let filterQuery=['movie','series'];
         switch(filter){
             case 'movie':
                 setSearchFor('movies')
@@ -119,21 +129,13 @@ function Dashboard(){
                 setSearchFor('movies or TV series')
                 filterQuery=['movie','series']
                 break;
+            case 'saved':
+                setSearchFor('bookmarked shows')
+                filterQuery=['movie','series']
+                showBookmarked=true
+                break;
         }
-        getFilteredContentData(filterQuery);
-        // setLoadingContentData(true);
-        // setTimeout(() => {
-        //     axios.get(`http://localhost:1337/api/contents?${filterQuery}populate=*&pagination[pageSize]=30`)
-        //     .then(response=>{
-        //         setContentData(response.data.data)  
-        //         setOriginalContentData(response.data.data)
-        //         setLoadingContentData(false);    
-        //     })
-        //     .catch(error => {
-        //         console.error('Error fetching user data:', error);
-        //     });
-        //   }, "50");
-        
+        getFilteredContentData(filterQuery,showBookmarked);
     }
 
     const signOut = async () =>{
@@ -151,29 +153,12 @@ function Dashboard(){
             setBookmarked(prevBookmarked => [...prevBookmarked, id]);
         }
     }
-    const showBookmarked = () => {
-        setSearchFor('bookmarked shows')
-        // setLoadingContentData(true);
-        // setTimeout(() => {
-        //     axios.get(`http://localhost:1337/api/contents?populate=*&pagination[pageSize]=30`)
-        //     .then(response=>{
-        //         let filterBookmarked = response.data.data.filter(f=>bookmarked.includes(f.id));
-        //         setOriginalContentData(filterBookmarked)
-        //         setContentData(filterBookmarked)  
-        //         setLoadingContentData(false);    
-        //     })
-        //     .catch(error => {
-        //         console.error('Error fetching user data:', error);
-        //     });
-        //   }, "50");
-    }
-
+ 
     return(
         <div className="dashboard-div">
             <Navbar
                 handleChangeFilter={handleChangeFilter}
                 signOut={signOut}
-                showBookmarked={showBookmarked}
             />
             <div className='desktop-container'> 
             <div className='search-div'>

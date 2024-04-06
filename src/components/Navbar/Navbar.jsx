@@ -8,9 +8,7 @@ function Navbar(props){
     const [filter,setFilter]=useState('all')
     const [showExit,setShowExit]=useState(false)
     useEffect(()=>{
-        if(filter==='saved'){
-            props.showBookmarked();
-        }else props.handleChangeFilter(filter) 
+         props.handleChangeFilter(filter) 
         
     },[filter])
     return(

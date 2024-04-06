@@ -32,25 +32,6 @@ function LoginPage() {
         setResult('Invalid Credentials')
         console.error(err)
       }
-      
-    //   axios.post('http://localhost:1337/api/auth/local', {
-    //     identifier: `${inputUsername}`,
-    //     password: `${inputPassword}`,
-    //   })
-    // .then(response=>{
-    //   if(response.status===200){
-    //     navigate('/dashboard')
-    //     localStorage.setItem('LoggedIn',true)
-    //     localStorage.setItem('currentUserId',response.data.user.id)
-    //     if(rememberMe===true){
-    //       localStorage.setItem('RememberMe',true)
-    //     }
-    //   }
-    // })
-    // .catch(error => {
-    //   setResult('Invalid username or password!')
-    //   console.error('Error fetching user data:', error);
-    //   });
     }
   }
 
