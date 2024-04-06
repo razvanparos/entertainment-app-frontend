@@ -36,7 +36,6 @@ function Dashboard(){
                    ...doc.data(),
                    id: doc.id,
                }))
-                console.log(filteredData[0].bookmarked);
                 setBookmarked(filteredData[0].bookmarked)
                } catch(err){
                    console.log(err)
@@ -52,7 +51,6 @@ function Dashboard(){
                 ...doc.data(),
                 id: doc.id,
             }))
-             console.log(filteredData);
              setContentData(filteredData)
             } catch(err){
                 console.log(err)
@@ -71,7 +69,6 @@ function Dashboard(){
             let currentUID = localStorage.getItem('currentUserId')
         const updateBookmarked = async () =>{
             try{
-                console.log(bookmarked)
                 await setDoc(doc(db, "UsersBookmarkedList", currentUID ), {
                     bookmarked: bookmarked,
                     id: currentUID

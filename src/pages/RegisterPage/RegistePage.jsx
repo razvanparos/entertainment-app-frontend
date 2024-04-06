@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import './RegisterPage.css'
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {auth} from '../../config/firebase';
 import {createUserWithEmailAndPassword} from 'firebase/auth';
@@ -21,7 +20,7 @@ function RegisterPage(){
             await createUserWithEmailAndPassword(auth, inputEmail, inputPassword)
             await setDoc(doc(db, "UsersBookmarkedList", `${auth.currentUser.uid}`), {
               id: auth.currentUser.uid,
-              bookmarked: ['']
+              bookmarked: []
             });
             
             navigate('/')

@@ -1,6 +1,5 @@
 import './LoginPage.css';
 import React, { useState } from 'react';
-import axios from 'axios';
 import { FaCheck } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import {auth} from '../../config/firebase';
@@ -27,7 +26,6 @@ function LoginPage() {
         if(rememberMe===true){
           localStorage.setItem('RememberMe',true)
         }
-        console.log(auth.currentUser.email)
       } catch(err){
         setResult('Invalid Credentials')
         console.error(err)
